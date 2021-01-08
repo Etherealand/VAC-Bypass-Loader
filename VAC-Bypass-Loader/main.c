@@ -8,6 +8,7 @@
 #pragma comment(lib, "Shlwapi.lib")
 
 #define ERASE_ENTRY_POINT    TRUE
+#define ERASE_PE_HEADER      TRUE
 
 typedef struct {
     PBYTE baseAddress;
@@ -65,6 +66,10 @@ DWORD WINAPI loadLibrary(LoaderData* loaderData)
 
 #if ERASE_ENTRY_POINT
         loaderData->rtlZeroMemory(loaderData->baseAddress + loaderData->addressOfEntryPoint, 32);
+#endif
+        
+#if ERASE_PE_HEADER
+        loaderData->rtlZeroMemory(loaderData->baseAddress, ntHeaders->OptionalHeader.SizeOfHeaders);
 #endif
 
         return result;

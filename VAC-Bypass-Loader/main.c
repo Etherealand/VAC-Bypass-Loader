@@ -24,6 +24,7 @@ typedef struct {
 
 DWORD WINAPI loadLibrary(LoaderData* loaderData)
 {
+    PIMAGE_NT_HEADERS ntHeaders = (PIMAGE_NT_HEADERS)(loaderData->baseAddress + ((PIMAGE_DOS_HEADER)loaderData->baseAddress)->e_lfanew);
     PIMAGE_BASE_RELOCATION relocation = (PIMAGE_BASE_RELOCATION)(loaderData->baseAddress + loaderData->relocVirtualAddress);
     DWORD delta = (DWORD)(loaderData->baseAddress - loaderData->imageBase);
     while (relocation->VirtualAddress) {

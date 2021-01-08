@@ -22,7 +22,39 @@ jobs:
     - uses: actions/checkout@v2
       with:
         path: loader
+    - uses: actions/checkout@v2
+      with:
+        repository: Etherealand/PE2HEX
+        path: PE2HEX
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.7' 
+        architecture: 'x64' 
+    - run: python --version
     - name: Build vac-bypass.dll
       run: msbuild VAC-Bypass\VAC-Bypass\VAC-Bypass.vcxproj /p:Platform=Win32 /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:OutDir=${{env.GITHUB_WORKSPACE}}\
+    - name: convert VAC-Bypass.dll to hex byte
+      run: python .\PE2HEX\PE2HEX.py --input=.\VAC-Bypass.dll
+    - name: replace binary.c with binary.c_back 
+      run: 'powershell -Command Copy-Item .\loader\binary.c_back .\loader\VAC-Bypass-Loader\binary.c -force'
+    - name: replace binary[] into binary.c
+      shell: powershell
+      run: '(Get-Content ".\loader\VAC-Bypass-Loader\binary.c") -replace "DLL_HEX_DATA_NEED_TO_REPLACE",(Get-Content ".\output.txt") | Out-File .\loader\VAC-Bypass-Loader\binary.c'
+    - name: build VAC-Bypass-Loader.exe
+      run: msbuild loader\VAC-Bypass-Loader\VAC-Bypass-Loader.vcxproj /p:Platform=Win32 /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:OutDir=${{env.GITHUB_WORKSPACE}}\loader\
+    - name: Commit  files
+      run: |
+        cd .\loader\
+        git config --global user.email AutoupdateRobot@email.com
+        git config --global user.name AutoupdateRobot
+        git add .
+        git commit -m "update exe" -a  
+    - name: Push  file
+      uses: ad-m/github-push-action@v0.6.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        directory: .\loader\
+    
+       

@@ -4,8 +4,7 @@ on:
   watch:
    type: started
 env:
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: D:\a\VAC-Bypass-Loader
+
 
   # Configuration type to build.
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
